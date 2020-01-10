@@ -1,15 +1,12 @@
 Name:         ima-evm-utils
-Version:      1.1
-Release:      7
+Version:      1.2.1
+Release:      1
 Summary:      IMA/EVM control utilities
 License:      GPLv2
 URL:          http://linux-ima.sourceforge.net/
 Source0:      http://sourceforge.net/projects/linux-ima/files/ima-evm-utils/%{name}-%{version}.tar.gz
 
 BuildRequires: autoconf automake libtool m4 asciidoc libxslt openssl-devel keyutils-libs-devel git
-
-Patch1: docbook-xsl-path.patch
-Patch2: remove-libattr-dependency.patch
 
 %description
 ima-evm-utils package provides the evmctl utility that can be used for producing
@@ -68,6 +65,12 @@ make check
 %doc %{_mandir}/*/*
 
 %changelog
+* Fri Jan 10 2020 openEuler Buildteam <buildteam@openeuler.org> - 1.2.1-1
+- Type:enhancement
+- ID:NA
+- SUG:NA
+- DESC: clean code
+
 * Wed Oct 9 2019 openEuler Buildteam <buildteam@openeuler.org> - 1.1-7
 - Type:enhancement
 - ID:NA
