@@ -1,6 +1,6 @@
 Name:         ima-evm-utils
 Version:      1.2.1
-Release:      4
+Release:      5
 Summary:      IMA/EVM control utilities
 License:      GPLv2
 URL:          http://linux-ima.sourceforge.net/
@@ -15,6 +15,7 @@ and verifying digital signatures, which are used by Linux kernel integrity subsy
 It can be also used to import keys into the kernel keyring.
 
 %package devel
+Requires: %{name} = %{version}-%{release}
 Summary: Development files for %{name}
 Provides: %{name}-static = %{version}-%{release}
 Obsoletes:%{name}-static < %{version}-%{release}
@@ -82,6 +83,12 @@ make check
 %doc %{_mandir}/*/*
 
 %changelog
+* Tue Jan 14 2020 openEuler Buildteam <buildteam@openeuler.org> - 1.2.1-5
+- Type:enhancement
+- ID:NA
+- SUG:NA
+- DESC: clean code
+
 * Tue Jan 14 2020 openEuler Buildteam <buildteam@openeuler.org> - 1.2.1-4
 - Type:enhancement
 - ID:NA
