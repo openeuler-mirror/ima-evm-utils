@@ -1,13 +1,12 @@
 Name:         ima-evm-utils
 Version:      1.2.1
-Release:      6
+Release:      7
 Summary:      IMA/EVM control utilities
 License:      GPLv2
 URL:          http://linux-ima.sourceforge.net/
 Source0:      http://sourceforge.net/projects/linux-ima/files/ima-evm-utils/%{name}-%{version}.tar.gz
 
-BuildRequires: autoconf automake libtool m4 asciidoc libxslt openssl-devel keyutils-libs-devel git ima-evm-utils libimaevm0
-Requires: libimaevm1
+BuildRequires: autoconf automake libtool m4 asciidoc libxslt openssl-devel keyutils-libs-devel git
 
 %description
 ima-evm-utils package provides the evmctl utility that can be used for producing
@@ -25,16 +24,6 @@ This package provides the header files for %{name}
 
 %package_help
 
-%package -n  libimaevm0
-Summary: provide libimaevm0
-%description -n  libimaevm0
-This package provides old libimaevm.so
-
-%package -n  libimaevm1
-Summary: provide libimaevm1
-%description -n  libimaevm1
-This package provides libimaevm.so
-
 %prep
 %autosetup -n %{name}-%{version} -p1 -Sgit
 
@@ -47,7 +36,6 @@ make %{?_smp_mflags}
 %install
 rm -rf %{buildroot}
 %make_install
-cp -a %{_libdir}/libimaevm.so.* %{buildroot}%{_libdir}
 
 %check
 make check
@@ -65,6 +53,7 @@ make check
 %doc ChangeLog README
 %license COPYING AUTHORS
 %{_bindir}/*
+%{_libdir}/*.so.*
 
 %files devel
 %{_docdir}/%{name}/*.sh
@@ -73,16 +62,13 @@ make check
 %{_libdir}/libimaevm.a
 %{_libdir}/libimaevm.la
 
-%files -n libimaevm0
-%{_libdir}/*.so.0*
-
-%files -n libimaevm1
-%{_libdir}/*.so.1*
-
 %files help
 %doc %{_mandir}/*/*
 
 %changelog
+* Wed Jan 15 2020 openEuler Buildteam <buildteam@openeuler.org> - 1.2.1-7
+- delete libimaevm0
+
 * Wed Jan 15 2020 openEuler Buildteam <buildteam@openeuler.org> - 1.2.1-6
 - Type:enhancement
 - ID:NA
