@@ -1,20 +1,27 @@
 Name:         ima-evm-utils
 Version:      1.2.1
-Release:      7
+Release:      8
 Summary:      IMA/EVM control utilities
 License:      GPLv2
 URL:          http://linux-ima.sourceforge.net/
 Source0:      http://sourceforge.net/projects/linux-ima/files/ima-evm-utils/%{name}-%{version}.tar.gz
 
 BuildRequires: autoconf automake libtool m4 asciidoc libxslt openssl-devel keyutils-libs-devel git
+Requires:     %{name}-libs = %{version}-%{release}
 
 %description
 ima-evm-utils package provides the evmctl utility that can be used for producing
 and verifying digital signatures, which are used by Linux kernel integrity subsystem.
 It can be also used to import keys into the kernel keyring.
 
+%package libs
+Summary:      shared library for IMA/EVM
+
+%description libs
+This package provides shared library for IMA/EVM.
+
 %package devel
-Requires: %{name} = %{version}-%{release}
+Requires: %{name}-libs = %{version}-%{release}
 Summary: Development files for %{name}
 Provides: %{name}-static = %{version}-%{release}
 Obsoletes:%{name}-static < %{version}-%{release}
@@ -44,15 +51,18 @@ make check
 
 %preun
 
-%post -p /sbin/ldconfig
+%post libs -p /sbin/ldconfig
 
-%postun -p /sbin/ldconfig
+%postun libs -p /sbin/ldconfig
 
 %files
 %defattr(-,root,root)
 %doc ChangeLog README
 %license COPYING AUTHORS
 %{_bindir}/*
+
+%files libs
+%defattr(-,root,root)
 %{_libdir}/*.so.*
 
 %files devel
@@ -66,6 +76,9 @@ make check
 %doc %{_mandir}/*/*
 
 %changelog
+* Mon Jan 20 2020 openEuler Buildteam <buildteam@openeuler.org> - 1.2.1-8
+- add %{name}-libs
+
 * Wed Jan 15 2020 openEuler Buildteam <buildteam@openeuler.org> - 1.2.1-7
 - delete libimaevm0
 
