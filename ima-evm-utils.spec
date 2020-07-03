@@ -1,10 +1,12 @@
 Name:         ima-evm-utils
 Version:      1.2.1
-Release:      8
+Release:      9
 Summary:      IMA/EVM control utilities
 License:      GPLv2
 URL:          http://linux-ima.sourceforge.net/
 Source0:      http://sourceforge.net/projects/linux-ima/files/ima-evm-utils/%{name}-%{version}.tar.gz
+
+Patch0:       add-save-command-and-support-IMA-digest-list.patch
 
 BuildRequires: autoconf automake libtool m4 asciidoc libxslt openssl-devel keyutils-libs-devel git
 Requires:     %{name}-libs = %{version}-%{release}
@@ -37,7 +39,7 @@ This package provides the header files for %{name}
 %build
 mkdir -p m4
 autoreconf -f -i
-%configure 
+%configure
 make %{?_smp_mflags}
 
 %install
@@ -76,6 +78,12 @@ make check
 %doc %{_mandir}/*/*
 
 %changelog
+* Fri Jul 3 2020 Anakin Zhang <benjamin93@163.com> - 1.2.1-9
+- Type:enhancement
+- ID:NA
+- SUG:NA
+- DESC: add save command and support IMA digest list
+
 * Mon Jan 20 2020 openEuler Buildteam <buildteam@openeuler.org> - 1.2.1-8
 - add %{name}-libs
 
