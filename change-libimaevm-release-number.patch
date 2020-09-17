@@ -1,0 +1,26 @@
+From 28eefc4b05c8733a3e7d220ac70cfe1e3777f714 Mon Sep 17 00:00:00 2001
+From: Anakin Zhang <benjamin93@163.com>
+Date: Thu, 17 Sep 2020 13:38:37 +0800
+Subject: [PATCH] change libimaevm release number
+
+Signed-off-by: Anakin Zhang <benjamin93@163.com>
+---
+ src/Makefile.am | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/Makefile.am b/src/Makefile.am
+index d6c779f..ba9719b 100644
+--- a/src/Makefile.am
++++ b/src/Makefile.am
+@@ -4,7 +4,7 @@ libimaevm_la_SOURCES = libimaevm.c
+ libimaevm_la_CPPFLAGS = $(AM_CPPFLAGS) $(LIBCRYPTO_CFLAGS)
+ # current[:revision[:age]]
+ # result: [current-age].age.revision
+-libimaevm_la_LDFLAGS = -version-info 2:0:0
++libimaevm_la_LDFLAGS = -version-info 1:0:0
+ libimaevm_la_LIBADD =  $(LIBCRYPTO_LIBS)
+ 
+ include_HEADERS = imaevm.h
+-- 
+2.23.0
+
