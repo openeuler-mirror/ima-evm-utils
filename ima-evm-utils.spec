@@ -1,11 +1,12 @@
 Name:         ima-evm-utils
 Version:      1.3.1
-Release:      1
+Release:      2
 Summary:      IMA/EVM control utilities
 Group:        System/Libraries
 License:      GPLv2
 URL:          http://linux-ima.sourceforge.net/
 Source0:      http://sourceforge.net/projects/linux-ima/files/ima-evm-utils/%{name}-%{version}.tar.gz
+Patch0:       change-libimaevm-release-number.patch
 
 BuildRequires: autoconf automake libtool m4 asciidoc libxslt openssl-devel keyutils-libs-devel git
 Requires:     %{name}-libs = %{version}-%{release}
@@ -16,7 +17,7 @@ and verifying digital signatures, which are used by Linux kernel integrity subsy
 It can be also used to import keys into the kernel keyring.
 
 %package libs
-Summary:      shared library for IMA/EVM
+Summary: shared library for IMA/EVM
 
 %description libs
 This package provides shared library for IMA/EVM.
@@ -77,6 +78,9 @@ make check
 %doc %{_mandir}/*/*
 
 %changelog
+* Thu Sep 17 2020 openEuler Buildteam <buildteam@openeuler.org> - 1.3.1-2
+- provide libimaevm.so.1
+
 * Wed Aug 19 2020 openEuler Buildteam <buildteam@openeuler.org> - 1.3.1-1
 - update to 1.3.1
 
