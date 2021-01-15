@@ -1,6 +1,6 @@
 Name:         ima-evm-utils
-Version:      1.2.1
-Release:      9
+Version:      1.3.2
+Release:      1
 Summary:      IMA/EVM control utilities
 License:      GPLv2
 URL:          http://linux-ima.sourceforge.net/
@@ -78,6 +78,9 @@ make check
 %doc %{_mandir}/*/*
 
 %changelog
+* Fri Jan 15 2020 openEuler Buildteam <buildteam@openeuler.org> - 1.3.2-1
+- update to 1.3.2
+
 * Fri Jul 3 2020 Anakin Zhang <benjamin93@163.com> - 1.2.1-9
 - Type:enhancement
 - ID:NA
