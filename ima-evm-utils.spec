@@ -1,14 +1,15 @@
 Name:         ima-evm-utils
-Version:      1.2.1
-Release:      9
+Version:      1.3.2
+Release:      1
 Summary:      IMA/EVM control utilities
 License:      GPLv2
 URL:          http://linux-ima.sourceforge.net/
 Source0:      http://sourceforge.net/projects/linux-ima/files/ima-evm-utils/%{name}-%{version}.tar.gz
 
-Patch0:       add-save-command-and-support-IMA-digest-list.patch
+Patch9000:    add-save-command-to-support-digest-list-building.patch
 
-BuildRequires: autoconf automake libtool m4 asciidoc libxslt openssl-devel keyutils-libs-devel git
+BuildRequires: autoconf automake libtool asciidoc vim-common
+BuildRequires: libxslt openssl-devel keyutils-libs-devel ima-evm-utils
 Requires:     %{name}-libs = %{version}-%{release}
 
 %description
@@ -17,14 +18,14 @@ and verifying digital signatures, which are used by Linux kernel integrity subsy
 It can be also used to import keys into the kernel keyring.
 
 %package libs
-Summary:      shared library for IMA/EVM
+Summary: shared library for IMA/EVM
 
 %description libs
 This package provides shared library for IMA/EVM.
 
 %package devel
-Requires: %{name}-libs = %{version}-%{release}
 Summary: Development files for %{name}
+Requires: %{name}-libs = %{version}-%{release}
 Provides: %{name}-static = %{version}-%{release}
 Obsoletes:%{name}-static < %{version}-%{release}
 
@@ -34,10 +35,9 @@ This package provides the header files for %{name}
 %package_help
 
 %prep
-%autosetup -n %{name}-%{version} -p1 -Sgit
+%autosetup -n %{name}-%{version} -p1
 
 %build
-mkdir -p m4
 autoreconf -f -i
 %configure
 make %{?_smp_mflags}
@@ -45,22 +45,17 @@ make %{?_smp_mflags}
 %install
 rm -rf %{buildroot}
 %make_install
+cp %{_libdir}/libimaevm.so.1* %{buildroot}/%{_libdir}
 
 %check
 make check
 
-%pre
-
-%preun
-
-%post libs -p /sbin/ldconfig
-
-%postun libs -p /sbin/ldconfig
+%ldconfig_scriptlets
 
 %files
 %defattr(-,root,root)
-%doc ChangeLog README
-%license COPYING AUTHORS
+%doc NEWS README AUTHORS
+%license COPYING
 %{_bindir}/*
 
 %files libs
@@ -78,6 +73,9 @@ make check
 %doc %{_mandir}/*/*
 
 %changelog
+* Fri Jan 15 2020 openEuler Buildteam <buildteam@openeuler.org> - 1.3.2-1
+- update to 1.3.2
+
 * Fri Jul 3 2020 Anakin Zhang <benjamin93@163.com> - 1.2.1-9
 - Type:enhancement
 - ID:NA
