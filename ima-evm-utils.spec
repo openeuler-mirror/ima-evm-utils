@@ -1,6 +1,6 @@
 Name:         ima-evm-utils
 Version:      1.3.2
-Release:      1
+Release:      2
 Summary:      IMA/EVM control utilities
 License:      GPLv2
 URL:          http://linux-ima.sourceforge.net/
@@ -9,7 +9,7 @@ Source0:      http://sourceforge.net/projects/linux-ima/files/ima-evm-utils/%{na
 Patch9000:    add-save-command-to-support-digest-list-building.patch
 
 BuildRequires: autoconf automake libtool asciidoc vim-common
-BuildRequires: libxslt openssl-devel keyutils-libs-devel ima-evm-utils
+BuildRequires: libxslt openssl-devel keyutils-libs-devel tpm2-tss-devel
 Requires:     %{name}-libs = %{version}-%{release}
 
 %description
@@ -39,13 +39,14 @@ This package provides the header files for %{name}
 
 %build
 autoreconf -f -i
-%configure
+%configure \
+  --disable-static
 make %{?_smp_mflags}
 
 %install
 rm -rf %{buildroot}
 %make_install
-cp %{_libdir}/libimaevm.so.1* %{buildroot}/%{_libdir}
+find %{buildroot} -type f -name "*.la" -delete -print
 
 %check
 make check
@@ -66,14 +67,15 @@ make check
 %{_docdir}/%{name}/*.sh
 %{_includedir}/*.h
 %{_libdir}/*.so
-%{_libdir}/libimaevm.a
-%{_libdir}/libimaevm.la
 
 %files help
 %doc %{_mandir}/*/*
 
 %changelog
-* Fri Jan 15 2020 openEuler Buildteam <buildteam@openeuler.org> - 1.3.2-1
+* Tue Feb 2 2021 openEuler Buildteam <buildteam@openeuler.org> - 1.3.2-2
+- fix make check fail issue
+
+* Fri Jan 15 2021 openEuler Buildteam <buildteam@openeuler.org> - 1.3.2-1
 - update to 1.3.2
 
 * Fri Jul 3 2020 Anakin Zhang <benjamin93@163.com> - 1.2.1-9
