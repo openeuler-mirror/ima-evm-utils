@@ -1,0 +1,191 @@
+From 6e607f4c5b3a608477bfc10405fb3c1f2ef93024 Mon Sep 17 00:00:00 2001
+From: Roberto Sassu <roberto.sassu@huawei.com>
+Date: Thu, 21 Jan 2021 08:16:34 +0800
+Subject: [PATCH] add save command to support digest list building
+
+This patch adds save command to support IMA digest list.
+
+Signed-off-by: Tianxing Zhang <benjamin93@163.com>
+---
+ src/evmctl.c | 67 ++++++++++++++++++++++++++++++++++++++++++++++------
+ 1 file changed, 60 insertions(+), 7 deletions(-)
+
+diff --git a/src/evmctl.c b/src/evmctl.c
+index 1815f55..439713d 100644
+--- a/src/evmctl.c
++++ b/src/evmctl.c
+@@ -115,6 +115,7 @@ static int sigdump;
+ static int digest;
+ static int digsig;
+ static int sigfile;
++static int datafile;
+ static char *uuid_str;
+ static char *ino_str;
+ static char *uid_str;
+@@ -165,7 +166,8 @@ struct tpm_bank_info {
+ static char *pcrfile[MAX_PCRFILE];
+ static unsigned npcrfile;
+ 
+-static int bin2file(const char *file, const char *ext, const unsigned char *data, int len)
++static int _bin2file(const char *file, const char *ext,
++		     const unsigned char *data, int len, const char *mode)
+ {
+ 	FILE *fp;
+ 	char name[strlen(file) + (ext ? strlen(ext) : 0) + 2];
+@@ -178,7 +180,7 @@ static int bin2file(const char *file, const char *ext, const unsigned char *data
+ 
+ 	log_info("Writing to %s\n", name);
+ 
+-	fp = fopen(name, "w");
++	fp = fopen(name, mode);
+ 	if (!fp) {
+ 		log_err("Failed to open: %s\n", name);
+ 		return -1;
+@@ -188,6 +190,18 @@ static int bin2file(const char *file, const char *ext, const unsigned char *data
+ 	return err;
+ }
+ 
++static int bin2file(const char *file, const char *ext,
++		    const unsigned char *data, int len)
++{
++	return _bin2file(file, ext, data, len, "w");
++}
++
++static int bin2file_append(const char *file, const char *ext,
++			   const unsigned char *data, int len)
++{
++	return _bin2file(file, ext, data, len, "a");
++}
++
+ static unsigned char *file2bin(const char *file, const char *ext, int *size)
+ {
+ 	FILE *fp;
+@@ -353,6 +367,9 @@ static int calc_evm_hash(const char *file, unsigned char *hash)
+ 		return -1;
+ 	}
+ 
++	if (datafile)
++		bin2file(file, "data", NULL, 0);
++
+ 	if (generation_str)
+ 		generation = strtoul(generation_str, NULL, 10);
+ 	if (ino_str)
+@@ -364,7 +381,7 @@ static int calc_evm_hash(const char *file, unsigned char *hash)
+ 	if (mode_str)
+ 		st.st_mode = strtoul(mode_str, NULL, 10);
+ 
+-	if (!evm_immutable) {
++	if (!evm_immutable && !evm_portable) {
+ 		if ((S_ISREG(st.st_mode) || S_ISDIR(st.st_mode)) && !generation_str) {
+ 			/* we cannot at the momement to get generation of
+ 			   special files kernel API does not support it */
+@@ -444,7 +461,11 @@ static int calc_evm_hash(const char *file, unsigned char *hash)
+ 		/*log_debug("name: %s, value: %s, size: %d\n", *xattrname, xattr_value, err);*/
+ 		log_info("name: %s, size: %d\n", *xattrname, err);
+ 		log_debug_dump(xattr_value, err);
+-		err = EVP_DigestUpdate(pctx, xattr_value, err);
++		if (datafile)
++			err = bin2file_append(file, "data",
++				(const unsigned char *)xattr_value, err);
++		else
++			err = EVP_DigestUpdate(pctx, xattr_value, err);
+ 		if (!err) {
+ 			log_err("EVP_DigestUpdate() failed\n");
+ 			return 1;
+@@ -498,7 +519,11 @@ static int calc_evm_hash(const char *file, unsigned char *hash)
+ 	log_debug("hmac_misc (%d): ", hmac_size);
+ 	log_debug_dump(&hmac_misc, hmac_size);
+ 
+-	err = EVP_DigestUpdate(pctx, &hmac_misc, hmac_size);
++	if (datafile)
++		err = bin2file_append(file, "data",
++			(const unsigned char *)&hmac_misc, hmac_size);
++	else
++		err = EVP_DigestUpdate(pctx, &hmac_misc, hmac_size);
+ 	if (!err) {
+ 		log_err("EVP_DigestUpdate() failed\n");
+ 		return 1;
+@@ -555,6 +580,9 @@ static int sign_evm(const char *file, const char *key)
+ 	if (sigdump || imaevm_params.verbose >= LOG_INFO)
+ 		imaevm_hexdump(sig, len);
+ 
++	if (sigfile)
++		bin2file(file, "sig", sig, len);
++
+ 	if (xattr) {
+ 		err = lsetxattr(file, xattr_evm, sig, len, 0);
+ 		if (err < 0) {
+@@ -566,6 +594,21 @@ static int sign_evm(const char *file, const char *key)
+ 	return 0;
+ }
+ 
++static int save_evm(const char *file)
++{
++	unsigned char hash[MAX_DIGEST_SIZE];
++	int len;
++
++	datafile = 1;
++
++	len = calc_evm_hash(file, hash);
++	if (len <= 1)
++		return len;
++	assert(len <= sizeof(hash));
++
++	return 0;
++}
++
+ static int hash_ima(const char *file)
+ {
+ 	unsigned char hash[MAX_DIGEST_SIZE + 2]; /* +2 byte xattr header */
+@@ -678,7 +721,7 @@ static int get_file_type(const char *path, const char *search_type)
+ 
+ static int do_cmd(struct command *cmd, find_cb_t func)
+ {
+-	char *path = g_argv[optind++];
++	char *path = g_argv[optind++], *path_ptr;
+ 	int err, dts = REG_MASK; /* only regular files by default */
+ 
+ 	if (!path) {
+@@ -687,6 +730,10 @@ static int do_cmd(struct command *cmd, find_cb_t func)
+ 		return -1;
+ 	}
+ 
++	path_ptr = path + strlen(path) - 1;
++	if (*path_ptr == '/')
++		*path_ptr = '\0';
++
+ 	if (recursive) {
+ 		if (search_type) {
+ 			dts = get_file_type(path, search_type);
+@@ -793,6 +840,11 @@ static int cmd_sign_evm(struct command *cmd)
+ 	return do_cmd(cmd, sign_evm_path);
+ }
+ 
++static int cmd_save_evm(struct command *cmd)
++{
++	return do_cmd(cmd, save_evm);
++}
++
+ static int verify_evm(const char *file)
+ {
+ 	unsigned char hash[MAX_DIGEST_SIZE];
+@@ -807,7 +859,7 @@ static int verify_evm(const char *file)
+ 		return len;
+ 	}
+ 
+-	if (sig[0] != 0x03) {
++	if (sig[0] != 0x03 && sig[0] != 0x05) {
+ 		log_err("%s has no signature\n", xattr_evm);
+ 		return -1;
+ 	}
+@@ -2479,6 +2531,7 @@ struct command cmds[] = {
+ 	{"import", cmd_import, 0, "[--rsa] pubkey keyring", "Import public key into the keyring.\n"},
+ 	{"convert", cmd_convert, 0, "key", "convert public key into the keyring.\n"},
+ 	{"sign", cmd_sign_evm, 0, "[-r] [--imahash | --imasig ] [--key key] [--pass [password] file", "Sign file metadata.\n"},
++	{"save", cmd_save_evm, 0, "[-r] [--imahash | --imasig ] file", "Save file metadata.\n"},
+ 	{"verify", cmd_verify_evm, 0, "file", "Verify EVM signature (for debugging).\n"},
+ 	{"ima_sign", cmd_sign_ima, 0, "[--sigfile] [--key key] [--pass [password] file", "Make file content signature.\n"},
+ 	{"ima_verify", cmd_verify_ima, 0, "file", "Verify IMA signature (for debugging).\n"},
+-- 
+2.25.1
+

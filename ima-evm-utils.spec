@@ -1,15 +1,17 @@
 Name:         ima-evm-utils
 Version:      1.3.1
-Release:      4
+Release:      5
 Summary:      IMA/EVM control utilities
 Group:        System/Libraries
-License:      GPLv2
+License:      GPLv2+
 URL:          http://linux-ima.sourceforge.net/
 Source0:      http://sourceforge.net/projects/linux-ima/files/ima-evm-utils/%{name}-%{version}.tar.gz
 
 BuildRequires: autoconf automake libtool m4 asciidoc libxslt openssl-devel
 BuildRequires: keyutils-libs-devel git ima-evm-utils vim-common
 Requires:     %{name}-libs = %{version}-%{release}
+
+Patch0: add-save-command-to-support-digest-list-building.patch
 
 %description
 ima-evm-utils package provides the evmctl utility that can be used for producing
@@ -79,6 +81,9 @@ make check
 %doc %{_mandir}/*/*
 
 %changelog
+* Wed Mar 24 2021 openEuler Buildteam <buildteam@openeuler.org> - 1.3.1-5
+- add save command to support digest list building
+
 * Tue Nov 24 2020 openEuler Buildteam <buildteam@openeuler.org> - 1.3.1-4
 - add vim-common as BuildRequire
 
