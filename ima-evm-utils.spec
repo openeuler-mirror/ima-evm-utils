@@ -1,6 +1,6 @@
 Name:         ima-evm-utils
 Version:      1.3.1
-Release:      4
+Release:      5
 Summary:      IMA/EVM control utilities
 Group:        System/Libraries
 License:      GPLv2
@@ -81,6 +81,9 @@ make check
 %doc %{_mandir}/*/*
 
 %changelog
+* Fri May 21 2021 shenyangyang <shenyangyang4@huawei.com> - 1.3.1-5
+- Bump release for sp2 release
+
 * Tue Dec 22 2020 openEuler Buildteam <buildteam@openeuler.org> - 1.3.1-4
 - Type:enhancement
 - ID:NA
