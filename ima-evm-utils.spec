@@ -1,6 +1,6 @@
 Name:         ima-evm-utils
 Version:      1.3.1
-Release:      4
+Release:      5
 Summary:      IMA/EVM control utilities
 Group:        System/Libraries
 License:      GPLv2
@@ -10,7 +10,7 @@ Source0:      http://sourceforge.net/projects/linux-ima/files/ima-evm-utils/%{na
 Patch9000:    add-save-command-and-support-IMA-digest-list.patch
 
 BuildRequires: autoconf automake libtool m4 asciidoc libxslt openssl-devel
-BuildRequires: keyutils-libs-devel git ima-evm-utils
+BuildRequires: keyutils-libs-devel git ima-evm-utils vim-common
 Requires:     %{name}-libs = %{version}-%{release}
 
 %description
@@ -81,6 +81,9 @@ make check
 %doc %{_mandir}/*/*
 
 %changelog
+* Mon May 31 2020 Anakin Zhang <benjamin93@163.com> - 1.3.1-5
+- fix make check issue in LTS-Next
+
 * Tue Dec 22 2020 openEuler Buildteam <buildteam@openeuler.org> - 1.3.1-4
 - Type:enhancement
 - ID:NA
