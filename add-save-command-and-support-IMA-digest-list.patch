@@ -1,15 +1,15 @@
-From 67684a72e4d62880efd6800f281929a989de8d06 Mon Sep 17 00:00:00 2001
+From 6f1777200a9ffe74272f74e6bbb98c6291b782ea Mon Sep 17 00:00:00 2001
 From: Roberto Sassu <roberto.sassu@huawei.com>
 Date: Thu, 2 Jul 2020 22:19:00 -0400
 Subject: [PATCH] add save command and support IMA digest list
 
 Signed-off-by: Anakin Zhang <benjamin93@163.com>
 ---
- src/evmctl.c | 68 ++++++++++++++++++++++++++++++++++++++++++++++------
- 1 file changed, 61 insertions(+), 7 deletions(-)
+ src/evmctl.c | 67 ++++++++++++++++++++++++++++++++++++++++++++++------
+ 1 file changed, 60 insertions(+), 7 deletions(-)
 
 diff --git a/src/evmctl.c b/src/evmctl.c
-index 7ad1150..5bf8bf4 100644
+index 7ad1150..6433ccc 100644
 --- a/src/evmctl.c
 +++ b/src/evmctl.c
 @@ -115,6 +115,7 @@ static int sigdump;
@@ -184,14 +184,6 @@ index 7ad1150..5bf8bf4 100644
  	{"verify", cmd_verify_evm, 0, "file", "Verify EVM signature (for debugging).\n"},
  	{"ima_sign", cmd_sign_ima, 0, "[--sigfile] [--key key] [--pass [password] file", "Make file content signature.\n"},
  	{"ima_verify", cmd_verify_ima, 0, "file", "Verify IMA signature (for debugging).\n"},
-@@ -2614,6 +2667,7 @@ int main(int argc, char *argv[])
- 				imaevm_params.keypass = get_password();
- 			break;
- 		case 'f':
-+			xattr = 0;
- 			sigfile = 1;
- 			break;
- 		case 'u':
 -- 
-2.23.0.windows.1
+2.23.0
 
