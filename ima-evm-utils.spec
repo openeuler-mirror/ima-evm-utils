@@ -1,6 +1,6 @@
 Name:         ima-evm-utils
 Version:      1.3.2
-Release:      2
+Release:      3
 Summary:      IMA/EVM control utilities
 License:      GPLv2
 URL:          http://linux-ima.sourceforge.net/
@@ -9,7 +9,7 @@ Source0:      http://sourceforge.net/projects/linux-ima/files/ima-evm-utils/%{na
 Patch9000:    add-save-command-to-support-digest-list-building.patch
 
 BuildRequires: autoconf automake libtool asciidoc vim-common
-BuildRequires: libxslt openssl-devel keyutils-libs-devel tpm2-tss-devel
+BuildRequires: libxslt openssl openssl-devel keyutils-libs-devel tpm2-tss-devel
 Requires:     %{name}-libs = %{version}-%{release}
 
 %description
@@ -72,6 +72,9 @@ make check
 %doc %{_mandir}/*/*
 
 %changelog
+* Wed Nov 10 2021 xu_ping <xuping33@huawei.com> - 1.3.2-3
+- Fix tests failed due to lack of openssl command
+
 * Tue Feb 2 2021 openEuler Buildteam <buildteam@openeuler.org> - 1.3.2-2
 - fix make check fail issue
 
