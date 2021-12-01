@@ -1,6 +1,6 @@
 Name:         ima-evm-utils
 Version:      1.3.1
-Release:      3
+Release:      4
 Summary:      IMA/EVM control utilities
 Group:        System/Libraries
 License:      GPLv2
@@ -8,7 +8,7 @@ URL:          http://linux-ima.sourceforge.net/
 Source0:      http://sourceforge.net/projects/linux-ima/files/ima-evm-utils/%{name}-%{version}.tar.gz
 
 BuildRequires: autoconf automake libtool m4 asciidoc libxslt openssl-devel
-BuildRequires: keyutils-libs-devel git ima-evm-utils
+BuildRequires: keyutils-libs-devel git
 Requires:     %{name}-libs = %{version}-%{release}
 
 %description
@@ -45,7 +45,6 @@ make %{?_smp_mflags}
 %install
 rm -rf %{buildroot}
 %make_install
-cp %{_libdir}/libimaevm.so.1* %{buildroot}/%{_libdir}
 
 %check
 make check
@@ -79,6 +78,9 @@ make check
 %doc %{_mandir}/*/*
 
 %changelog
+* Wed Dec 1 2021 openEuler Buildteam <buildteam@openeuler.org> - 1.3.1-4
+- remove libimaevm.so.1
+
 * Mon Sep 21 2020 openEuler Buildteam <buildteam@openeuler.org> - 1.3.1-3
 - provide both libimaevm.so.1 and libimaevm.so.2
 
