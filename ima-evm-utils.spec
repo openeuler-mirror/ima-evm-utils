@@ -1,6 +1,6 @@
 Name:         ima-evm-utils
 Version:      1.3.1
-Release:      5
+Release:      6
 Summary:      IMA/EVM control utilities
 Group:        System/Libraries
 License:      GPLv2
@@ -81,8 +81,11 @@ make check
 %doc %{_mandir}/*/*
 
 %changelog
-* Mon May 31 2020 Anakin Zhang <benjamin93@163.com> - 1.3.1-5
-- fix make check issue in LTS-Next
+* Mon May 31 2021 Anakin Zhang <benjamin93@163.com> - 1.3.1-6
+- fix make check issue
+
+* Fri May 21 2021 shenyangyang <shenyangyang4@huawei.com> - 1.3.1-5
+- Bump release for sp2 release
 
 * Tue Dec 22 2020 openEuler Buildteam <buildteam@openeuler.org> - 1.3.1-4
 - Type:enhancement
