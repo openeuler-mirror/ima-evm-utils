@@ -1,6 +1,6 @@
 Name:         ima-evm-utils
-Version:      1.3.2
-Release:      3
+Version:      1.4
+Release:      1
 Summary:      IMA/EVM control utilities
 License:      GPLv2
 URL:          http://linux-ima.sourceforge.net/
@@ -47,6 +47,7 @@ make %{?_smp_mflags}
 rm -rf %{buildroot}
 %make_install
 find %{buildroot} -type f -name "*.la" -delete -print
+ln -sf %{_libdir}/libimaevm.so.2 %{buildroot}%{_libdir}/libimaevm.2.0.0
 
 %check
 make check
@@ -62,6 +63,7 @@ make check
 %files libs
 %defattr(-,root,root)
 %{_libdir}/*.so.*
+%{_libdir}/*
 
 %files devel
 %{_docdir}/%{name}/*.sh
@@ -72,6 +74,10 @@ make check
 %doc %{_mandir}/*/*
 
 %changelog
+* Sat Apr 2 2022 misaka00251 <misaka00251@misakanet.cn> - 1.4-1
+- Upgrade package version to 1.4
+- Fix patches & symbolic link error
+
 * Wed Nov 10 2021 xu_ping <xuping33@huawei.com> - 1.3.2-3
 - Fix tests failed due to lack of openssl command
 

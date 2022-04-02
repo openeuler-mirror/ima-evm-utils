@@ -8,13 +8,13 @@ This patch adds save command to support IMA digest list.
 Signed-off-by: Tianxing Zhang <benjamin93@163.com>
 ---
  src/evmctl.c | 67 ++++++++++++++++++++++++++++++++++++++++++++++------
- 1 file changed, 60 insertions(+), 7 deletions(-)
+ 1 file changed, 59 insertions(+), 6 deletions(-)
 
 diff --git a/src/evmctl.c b/src/evmctl.c
 index 1815f55..439713d 100644
 --- a/src/evmctl.c
 +++ b/src/evmctl.c
-@@ -115,6 +115,7 @@ static int sigdump;
+@@ -118,6 +118,7 @@ static int sigdump;
  static int digest;
  static int digsig;
  static int sigfile;
@@ -76,12 +76,12 @@ index 1815f55..439713d 100644
  
 -	if (!evm_immutable) {
 +	if (!evm_immutable && !evm_portable) {
- 		if ((S_ISREG(st.st_mode) || S_ISDIR(st.st_mode)) && !generation_str) {
- 			/* we cannot at the momement to get generation of
- 			   special files kernel API does not support it */
-@@ -444,7 +461,11 @@ static int calc_evm_hash(const char *file, unsigned char *hash)
- 		/*log_debug("name: %s, value: %s, size: %d\n", *xattrname, xattr_value, err);*/
- 		log_info("name: %s, size: %d\n", *xattrname, err);
+ 		if (S_ISREG(st.st_mode) && !generation_str) {
+ 			int fd = open(file, 0);
+ 
+@@ -454,7 +471,11 @@ static int calc_evm_hash(const char *file, unsigned char *hash)
+ 		log_info("name: %s, size: %d\n",
+ 			 use_xattr_ima ? xattr_ima : *xattrname, err);
  		log_debug_dump(xattr_value, err);
 -		err = EVP_DigestUpdate(pctx, xattr_value, err);
 +		if (datafile)
@@ -92,11 +92,10 @@ index 1815f55..439713d 100644
  		if (!err) {
  			log_err("EVP_DigestUpdate() failed\n");
  			return 1;
-@@ -498,7 +519,11 @@ static int calc_evm_hash(const char *file, unsigned char *hash)
- 	log_debug("hmac_misc (%d): ", hmac_size);
+@@ -509,6 +530,11 @@ static int calc_evm_hash(const char *file, unsigned char *hash)
  	log_debug_dump(&hmac_misc, hmac_size);
  
--	err = EVP_DigestUpdate(pctx, &hmac_misc, hmac_size);
+ 	err = EVP_DigestUpdate(pctx, &hmac_misc, hmac_size);
 +	if (datafile)
 +		err = bin2file_append(file, "data",
 +			(const unsigned char *)&hmac_misc, hmac_size);
@@ -105,7 +104,7 @@ index 1815f55..439713d 100644
  	if (!err) {
  		log_err("EVP_DigestUpdate() failed\n");
  		return 1;
-@@ -555,6 +580,9 @@ static int sign_evm(const char *file, const char *key)
+@@ -565,6 +591,9 @@ static int sign_evm(const char *file, const char *key)
  	if (sigdump || imaevm_params.verbose >= LOG_INFO)
  		imaevm_hexdump(sig, len);
  
@@ -115,7 +114,7 @@ index 1815f55..439713d 100644
  	if (xattr) {
  		err = lsetxattr(file, xattr_evm, sig, len, 0);
  		if (err < 0) {
-@@ -566,6 +594,21 @@ static int sign_evm(const char *file, const char *key)
+@@ -576,6 +605,21 @@ static int sign_evm(const char *file, const char *key)
  	return 0;
  }
  
@@ -137,7 +136,7 @@ index 1815f55..439713d 100644
  static int hash_ima(const char *file)
  {
  	unsigned char hash[MAX_DIGEST_SIZE + 2]; /* +2 byte xattr header */
-@@ -678,7 +721,7 @@ static int get_file_type(const char *path, const char *search_type)
+@@ -684,7 +728,7 @@ static int get_file_type(const char *path, const char *search_type)
  
  static int do_cmd(struct command *cmd, find_cb_t func)
  {
@@ -146,7 +145,7 @@ index 1815f55..439713d 100644
  	int err, dts = REG_MASK; /* only regular files by default */
  
  	if (!path) {
-@@ -687,6 +730,10 @@ static int do_cmd(struct command *cmd, find_cb_t func)
+@@ -693,6 +737,10 @@ static int do_cmd(struct command *cmd, find_cb_t func)
  		return -1;
  	}
  
@@ -157,7 +156,7 @@ index 1815f55..439713d 100644
  	if (recursive) {
  		if (search_type) {
  			dts = get_file_type(path, search_type);
-@@ -793,6 +840,11 @@ static int cmd_sign_evm(struct command *cmd)
+@@ -799,6 +847,11 @@ static int cmd_sign_evm(struct command *cmd)
  	return do_cmd(cmd, sign_evm_path);
  }
  
@@ -169,16 +168,7 @@ index 1815f55..439713d 100644
  static int verify_evm(const char *file)
  {
  	unsigned char hash[MAX_DIGEST_SIZE];
-@@ -807,7 +859,7 @@ static int verify_evm(const char *file)
- 		return len;
- 	}
- 
--	if (sig[0] != 0x03) {
-+	if (sig[0] != 0x03 && sig[0] != 0x05) {
- 		log_err("%s has no signature\n", xattr_evm);
- 		return -1;
- 	}
-@@ -2479,6 +2531,7 @@ struct command cmds[] = {
+@@ -2547,6 +2600,7 @@ struct command cmds[] = {
  	{"import", cmd_import, 0, "[--rsa] pubkey keyring", "Import public key into the keyring.\n"},
  	{"convert", cmd_convert, 0, "key", "convert public key into the keyring.\n"},
  	{"sign", cmd_sign_evm, 0, "[-r] [--imahash | --imasig ] [--key key] [--pass [password] file", "Sign file metadata.\n"},
